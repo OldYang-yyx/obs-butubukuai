@@ -1,0 +1,6 @@
+@echo off
+echo 开始将不吐不快 (Butubukuai) 编译为独立单文件版...
+dotnet publish Butubukuai/Butubukuai.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:IncludeNativeLibrariesForSelfExtract=true
+echo.
+echo 发布完成！请按任意键退出...
+pause

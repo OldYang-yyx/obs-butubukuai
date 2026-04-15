@@ -5,91 +5,133 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Butubukuai"
         mc:Ignorable="d"
-        Title="不吐不快 (Butubukuai) - 麦克风与 OBS 测试" Height="480" Width="450"
+        Title="不吐不快 (Butubukuai) - 核心控制台" Height="580" Width="480"
         WindowStartupLocation="CenterScreen">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid>
+        <TabControl Margin="5">
+            <!-- 第一个选项卡：主操作台 -->
+            <TabItem Header="主操作台">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-        <!-- 第一部分：系统麦克风 -->
-        <Border Grid.Row="0" BorderBrush="#EEE" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15" Background="#FAFAFA">
-            <StackPanel>
-                <TextBlock Text="1. 系统麦克风采集" FontWeight="Bold" Foreground="#333" Margin="0,0,0,15" FontSize="14"/>
-                
-                <StackPanel Margin="0,0,0,10">
-                    <TextBlock Text="选择麦克风：" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="MicComboBox" DisplayMemberPath="Key" SelectedValuePath="Value" Height="28"/>
-                </StackPanel>
+                    <!-- 第一部分：系统麦克风 -->
+                    <Border Grid.Row="0" BorderBrush="#EEE" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15" Background="#FAFAFA">
+                        <StackPanel>
+                            <TextBlock Text="1. 系统麦克风采集" FontWeight="Bold" Foreground="#333" Margin="0,0,0,15" FontSize="14"/>
+                            
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="选择麦克风：" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="MicComboBox" DisplayMemberPath="Key" SelectedValuePath="Value" Height="28"/>
+                            </StackPanel>
 
-                <StackPanel Margin="0,0,0,10">
-                    <TextBlock Text="实时音量：" Margin="0,0,0,5"/>
-                    <ProgressBar x:Name="VolumeProgressBar" Height="20" Minimum="0" Maximum="1" 
-                                 Foreground="#4CAF50" Background="#E0E0E0" BorderBrush="#CCC" BorderThickness="1"/>
-                </StackPanel>
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="实时音量：" Margin="0,0,0,5"/>
+                                <ProgressBar x:Name="VolumeProgressBar" Height="20" Minimum="0" Maximum="1" 
+                                             Foreground="#4CAF50" Background="#E0E0E0" BorderBrush="#CCC" BorderThickness="1"/>
+                            </StackPanel>
 
-                <Button x:Name="ToggleRecordButton" Content="开始采集" Height="30" 
-                        Click="ToggleRecordButton_Click" Background="#2196F3" Foreground="White" 
-                        BorderThickness="0" Cursor="Hand"/>
-            </StackPanel>
-        </Border>
+                            <Button x:Name="ToggleRecordButton" Content="开始采集" Height="30" 
+                                    Click="ToggleRecordButton_Click" Background="#2196F3" Foreground="White" 
+                                    BorderThickness="0" Cursor="Hand"/>
+                        </StackPanel>
+                    </Border>
 
-        <!-- 第二部分：OBS 控制配置 -->
-        <Border Grid.Row="1" BorderBrush="#EEE" BorderThickness="1" CornerRadius="5" Padding="15" Background="#FAFAFA">
-            <StackPanel>
-                <Grid Margin="0,0,0,15">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="2. OBS WebSocket 连接" FontWeight="Bold" Foreground="#333" FontSize="14"/>
-                    <TextBlock x:Name="ObsStatusTextBlock" Grid.Column="1" Text="未连接" Foreground="#F44336" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <!-- 第二部分：OBS 控制配置 -->
+                    <Border Grid.Row="1" BorderBrush="#EEE" BorderThickness="1" CornerRadius="5" Padding="15" Background="#FAFAFA">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="2. OBS WebSocket 连接" FontWeight="Bold" Foreground="#333" FontSize="14"/>
+                                <TextBlock x:Name="ObsStatusTextBlock" Grid.Column="1" Text="未连接" Foreground="#F44336" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="IP 地址：" Margin="0,0,0,5"/>
+                                    <TextBox x:Name="ObsIpTextBox" Text="127.0.0.1" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="端口：" Margin="0,0,0,5"/>
+                                    <TextBox x:Name="ObsPortTextBox" Text="4455" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Margin="0,0,0,15">
+                                <TextBlock Text="连接密码：" Margin="0,0,0,5"/>
+                                <PasswordBox x:Name="ObsPasswordBox" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
+                            </StackPanel>
+
+                            <Button x:Name="ConnectObsButton" Content="连接 OBS" Height="30" Click="ConnectObsButton_Click" 
+                                    Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,15"/>
+
+                            <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Margin="0,0,0,15" Padding="0,15,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="OBS 麦克风测试：" Margin="0,0,0,5"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ComboBox x:Name="ObsSourceComboBox" ToolTip="下拉选择你要控制的 OBS 音轨" Margin="0,0,10,0" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                                        <ToggleButton x:Name="TestMuteToggleButton" Grid.Column="1" Content="测试静音" Height="30" Width="100" 
+                                                      Click="TestMuteToggleButton_Click" BorderThickness="1" Cursor="Hand" Style="{StaticResource {x:Type ToggleButton}}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
                 </Grid>
+            </TabItem>
 
-                <Grid Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*"/>
-                        <ColumnDefinition Width="2*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                        <TextBlock Text="IP 地址：" Margin="0,0,0,5"/>
-                        <TextBox x:Name="ObsIpTextBox" Text="127.0.0.1" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
+            <!-- 第二个选项卡：AI 配置 -->
+            <TabItem Header="AI与违禁词配置">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="15">
+                        <TextBlock Text="阿里百炼实时语音模型接入参数" FontWeight="Bold" Margin="0,0,0,15" FontSize="14" Foreground="#333"/>
+
+                        <TextBlock Text="API Key:" Margin="0,0,0,5"/>
+                        <TextBox x:Name="ApiKeyTextBox" Height="25" Margin="0,0,0,15" VerticalContentAlignment="Center"/>
+
+                        <TextBlock Text="App Id (如不强制则可留白):" Margin="0,0,0,5"/>
+                        <TextBox x:Name="AppIdTextBox" Height="25" Margin="0,0,0,15" VerticalContentAlignment="Center"/>
+
+                        <TextBlock Text="违禁词字典 (逗号或换行分割):" Margin="0,0,0,5"/>
+                        <TextBox x:Name="BannedWordsTextBox" Height="100" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15"/>
+
+                        <Button x:Name="SaveConfigButton" Content="保存配置并重载引擎" Height="35" Click="SaveConfigButton_Click" 
+                                Background="#4CAF50" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,15"/>
+
+                        <!-- 调试追踪区域 -->
+                        <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="5" Padding="15" Background="#FAFAFA">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,10">
+                                    <TextBlock Text="引擎连接测试:" FontWeight="Bold"/>
+                                    <TextBlock x:Name="SttStatusTextBlock" Text="未连接" Foreground="#F44336" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Button x:Name="TestSttConnectButton" Content="测试 STT 身份鉴权" Height="30" Click="TestSttConnectButton_Click" Margin="0,0,0,10"/>
+
+                                <TextBlock Text="识别反馈实时预览:" Margin="0,10,0,5" Foreground="#666"/>
+                                <TextBox x:Name="RecognizedResultTextBox" Height="60" TextWrapping="Wrap" IsReadOnly="True" Background="#EFEFEF"/>
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="端口：" Margin="0,0,0,5"/>
-                        <TextBox x:Name="ObsPortTextBox" Text="4455" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
-                    </StackPanel>
-                </Grid>
-
-                <StackPanel Margin="0,0,0,15">
-                    <TextBlock Text="连接密码：" Margin="0,0,0,5"/>
-                    <PasswordBox x:Name="ObsPasswordBox" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
-                </StackPanel>
-
-                <Button x:Name="ConnectObsButton" Content="连接 OBS" Height="30" Click="ConnectObsButton_Click" 
-                        Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,15"/>
-
-                <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Margin="0,0,0,15" Padding="0,15,0,0">
-                    <StackPanel>
-                        <TextBlock Text="OBS 麦克风测试：" Margin="0,0,0,5"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <ComboBox x:Name="ObsSourceComboBox" ToolTip="下拉选择你要控制的 OBS 音轨" Margin="0,0,10,0" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
-                            <ToggleButton x:Name="TestMuteToggleButton" Grid.Column="1" Content="测试静音" Height="30" Width="100" 
-                                          Click="TestMuteToggleButton_Click" BorderThickness="1" Cursor="Hand" Style="{StaticResource {x:Type ToggleButton}}"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
-
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

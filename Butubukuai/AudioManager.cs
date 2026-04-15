@@ -17,6 +17,11 @@ namespace Butubukuai
         public event EventHandler<float>? OnVolumeChanged;
 
         /// <summary>
+        /// 广播原始 PCM 字节流
+        /// </summary>
+        public event EventHandler<byte[]>? OnAudioDataAvailable;
+
+        /// <summary>
         /// 获取系统麦克风列表
         /// </summary>
         /// <returns>麦克风设备名称列表</returns>
@@ -45,8 +50,8 @@ namespace Butubukuai
             _waveIn = new WaveInEvent
             {
                 DeviceNumber = deviceNumber,
-                // 设置标准的音频格式: 采样率 44.1kHz, 单声道, 16位深度
-                WaveFormat = new WaveFormat(44100, 1)
+                // 根据要求，设置严格对齐的音频格式: 采样率 16000Hz, 单声道, 16位深度
+                WaveFormat = new WaveFormat(16000, 16, 1)
             };
 
             _waveIn.DataAvailable += WaveIn_DataAvailable;
@@ -75,6 +80,18 @@ namespace Butubukuai
         /// </summary>
         private void WaveIn_DataAvailable(object? sender, WaveInEventArgs e)
         {
+            // 将实际录制的字节流复制出来，供后续的 WebSocket 推送核心使用
+            if (e.BytesRecorded > 0)
+            {
+                byte[] pcmData = new byte[e.BytesRecorded];
+                Buffer.BlockCopy(e.Buffer, 0, pcmData, 0, e.BytesRecorded);
+                
+                System.Diagnostics.Debug.WriteLine($"[Audio Debug] 捕获 PCM 数据，长度：{e.BytesRecorded} bytes");
+                Console.WriteLine($"[Audio Debug] 捕获 PCM 数据，长度：{e.BytesRecorded} bytes");
+                
+                OnAudioDataAvailable?.Invoke(this, pcmData);
+            }
+
             // 在这段缓冲区内计算音量峰值
             float maxVolume = 0;
 
