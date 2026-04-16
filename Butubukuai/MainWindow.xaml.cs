@@ -177,8 +177,9 @@ public partial class MainWindow : Window
     /// <summary>
     /// 当识别出现文字的回调
     /// </summary>
-    private void SttService_OnTextRecognized(object? sender, string text)
+    private void SttService_OnTextRecognized(object? sender, RecognizedTextEventArgs e)
     {
+        string text = e.Text;
         System.Diagnostics.Debug.WriteLine($"[UI Debug] 准备上屏文字：{text}");
         Console.WriteLine($"[UI Debug] 准备上屏文字：{text}");
 
@@ -190,9 +191,10 @@ public partial class MainWindow : Window
             RecognizedResultTextBox.Text = log + RecognizedResultTextBox.Text;
 
             // 核心逻辑：触发判定
-            if (_filterEngine.Check(text))
+            var (isMatch, durationMs) = _filterEngine.CheckAndGetDuration(e);
+            if (isMatch)
             {
-                TriggerCensorship(text);
+                TriggerCensorship(text, durationMs);
             }
         });
     }
@@ -209,7 +211,7 @@ public partial class MainWindow : Window
     /// <summary>
     /// 触发阻断和发声 (带防抖的自动解封)
     /// </summary>
-    private async void TriggerCensorship(string matchedText)
+    private async void TriggerCensorship(string matchedText, int durationMs)
     {
         System.Media.SystemSounds.Beep.Play();
 
@@ -226,10 +228,10 @@ public partial class MainWindow : Window
             // 2. 立即实施静音屏蔽
             _obsService.SetSourceMute(sourceName, true);
             TestMuteToggleButton.IsChecked = true;
-            TestMuteToggleButton.Content = "已自动静音屏蔽中...";
+            TestMuteToggleButton.Content = $"静音阻断 ({durationMs}ms)...";
 
-            // 3. 异步倒计时 2000 毫秒
-            await Task.Delay(2000, token);
+            // 3. 异步倒计时动态计算出的毫秒数
+            await Task.Delay(durationMs, token);
 
             // 4. 等待结束且没有被新的违禁词打断，则完全解封
             if (!token.IsCancellationRequested)

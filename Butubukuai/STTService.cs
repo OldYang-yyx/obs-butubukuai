@@ -7,6 +7,20 @@ using System.Threading.Tasks;
 
 namespace Butubukuai
 {
+    public class WordTimestamp
+    {
+        public string Text { get; set; } = string.Empty;
+        public int BeginTime { get; set; }
+        public int EndTime { get; set; }
+    }
+
+    public class RecognizedTextEventArgs : EventArgs
+    {
+        public string Text { get; set; } = string.Empty;
+        public int DurationMs { get; set; }
+        public List<WordTimestamp> Words { get; set; } = new List<WordTimestamp>();
+    }
+
     public class STTService
     {
         private ClientWebSocket? _webSocket;
@@ -16,7 +30,7 @@ namespace Butubukuai
         /// <summary>
         /// 当接收到识别文本时触发
         /// </summary>
-        public event EventHandler<string>? OnTextRecognized;
+        public event EventHandler<RecognizedTextEventArgs>? OnTextRecognized;
         public event EventHandler<string>? OnError;
 
         public bool IsConnected => _webSocket?.State == WebSocketState.Open;
@@ -96,7 +110,8 @@ namespace Butubukuai
                     parameters = new
                     {
                         sample_rate = 16000,
-                        format = "pcm"
+                        format = "pcm",
+                        enable_intermediate_result = true
                     },
                     input = new { } // 关键修复：显式包含空的 input 对象以符合协议
                 }
@@ -188,25 +203,54 @@ namespace Butubukuai
             try
             {
                 using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                
-                // 初步解析 payload -> output -> sentence -> text
-                if (root.TryGetProperty("payload", out var payload) && 
-                    payload.TryGetProperty("output", out var output) &&
-                    output.TryGetProperty("sentence", out var sentence) &&
-                    sentence.TryGetProperty("text", out var textElem))
+                string text = ExtractText(doc.RootElement);
+
+                if (!string.IsNullOrEmpty(text))
                 {
-                    string text = textElem.GetString() ?? "";
-                    if (!string.IsNullOrEmpty(text))
+                    var eventArgs = new RecognizedTextEventArgs
                     {
-                        OnTextRecognized?.Invoke(this, text);
-                    }
+                        Text = text,
+                        DurationMs = 1000 // 强制赋予 FallbackDurationMs = 1000
+                    };
+
+                    OnTextRecognized?.Invoke(this, eventArgs);
                 }
             }
             catch
             {
                 // 忽略非标准的通知包 (例如只有 event 等心跳通知)
             }
+        }
+
+        /// <summary>
+        /// 暴力展平搜索提取 text 字段
+        /// </summary>
+        private string ExtractText(JsonElement element)
+        {
+            if (element.ValueKind == JsonValueKind.Object)
+            {
+                // 优先查找当前层级的 text
+                if (element.TryGetProperty("text", out var textProp) && textProp.ValueKind == JsonValueKind.String)
+                {
+                    string val = textProp.GetString() ?? "";
+                    if (!string.IsNullOrEmpty(val)) return val;
+                }
+                
+                foreach (var prop in element.EnumerateObject())
+                {
+                    string val = ExtractText(prop.Value);
+                    if (!string.IsNullOrEmpty(val)) return val;
+                }
+            }
+            else if (element.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in element.EnumerateArray())
+                {
+                    string val = ExtractText(item);
+                    if (!string.IsNullOrEmpty(val)) return val;
+                }
+            }
+            return string.Empty;
         }
     }
 }
