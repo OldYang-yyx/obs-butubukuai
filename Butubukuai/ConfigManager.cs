@@ -1,14 +1,46 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Collections.ObjectModel;
 
 namespace Butubukuai
 {
+    public class RuleGroup : System.ComponentModel.INotifyPropertyChanged
+    {
+        private string _groupName = string.Empty;
+        public string GroupName
+        {
+            get => _groupName;
+            set { _groupName = value; OnPropertyChanged(); }
+        }
+
+        private string _words = string.Empty;
+        public string Words
+        {
+            get => _words;
+            set { _words = value; OnPropertyChanged(); }
+        }
+
+        private string _soundPath = string.Empty;
+        public string SoundPath
+        {
+            get => _soundPath;
+            set { _soundPath = value; OnPropertyChanged(); }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
+        }
+    }
+
     public class AppConfig
     {
         public string ApiKey { get; set; } = string.Empty;
         public string AppId { get; set; } = string.Empty;
-        public string BannedWords { get; set; } = "测试违禁词,傻X,SB,弱智"; // 逗号分隔
+        public ObservableCollection<RuleGroup> RuleGroups { get; set; } = new ObservableCollection<RuleGroup>();
     }
 
     public static class ConfigManager

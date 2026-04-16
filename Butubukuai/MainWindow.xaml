@@ -5,133 +5,208 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Butubukuai"
         mc:Ignorable="d"
-        Title="不吐不快 (Butubukuai) - 核心控制台" Height="580" Width="480"
-        WindowStartupLocation="CenterScreen">
-    <Grid>
-        <TabControl Margin="5">
-            <!-- 第一个选项卡：主操作台 -->
-            <TabItem Header="主操作台">
-                <Grid Margin="15">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+        Title="不吐不快 (Butubukuai) - 核心控制台" Height="680" Width="1000"
+        WindowStartupLocation="CenterScreen" Background="#F4F6F9">
+    <Grid Margin="15">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="15"/>
+            <ColumnDefinition Width="1.2*"/>
+        </Grid.ColumnDefinitions>
 
-                    <!-- 第一部分：系统麦克风 -->
-                    <Border Grid.Row="0" BorderBrush="#EEE" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15" Background="#FAFAFA">
-                        <StackPanel>
-                            <TextBlock Text="1. 系统麦克风采集" FontWeight="Bold" Foreground="#333" Margin="0,0,0,15" FontSize="14"/>
-                            
-                            <StackPanel Margin="0,0,0,10">
-                                <TextBlock Text="选择麦克风：" Margin="0,0,0,5"/>
-                                <ComboBox x:Name="MicComboBox" DisplayMemberPath="Key" SelectedValuePath="Value" Height="28"/>
-                            </StackPanel>
+        <!-- 左侧分栏：麦克风与 OBS -->
+        <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Opacity="0.05" BlurRadius="10" ShadowDepth="0"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                            <StackPanel Margin="0,0,0,10">
-                                <TextBlock Text="实时音量：" Margin="0,0,0,5"/>
-                                <ProgressBar x:Name="VolumeProgressBar" Height="20" Minimum="0" Maximum="1" 
-                                             Foreground="#4CAF50" Background="#E0E0E0" BorderBrush="#CCC" BorderThickness="1"/>
-                            </StackPanel>
+                <!-- 第一部分：系统麦克风 -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,25">
+                    <TextBlock Text="1. 系统麦克风采集" FontWeight="Bold" Foreground="#333" Margin="0,0,0,15" FontSize="16"/>
+                    
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="选择麦克风：" Margin="0,0,0,5" Foreground="#666"/>
+                        <ComboBox x:Name="MicComboBox" DisplayMemberPath="Key" SelectedValuePath="Value" Height="30" Padding="5,0"/>
+                    </StackPanel>
 
-                            <Button x:Name="ToggleRecordButton" Content="开始采集" Height="30" 
-                                    Click="ToggleRecordButton_Click" Background="#2196F3" Foreground="White" 
-                                    BorderThickness="0" Cursor="Hand"/>
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="实时音量：" Margin="0,0,0,5" Foreground="#666"/>
+                        <ProgressBar x:Name="VolumeProgressBar" Height="20" Minimum="0" Maximum="1" 
+                                     Foreground="#4CAF50" Background="#E0E0E0" BorderBrush="#CCC" BorderThickness="1"/>
+                    </StackPanel>
+
+                    <Button x:Name="ToggleRecordButton" Content="开始采集" Height="35" 
+                            Click="ToggleRecordButton_Click" Background="#2196F3" Foreground="White" 
+                            BorderThickness="0" Cursor="Hand" FontWeight="Bold"/>
+                </StackPanel>
+
+                <!-- 第二部分：OBS 控制配置 -->
+                <StackPanel Grid.Row="1">
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="2. OBS WebSocket 连接" FontWeight="Bold" Foreground="#333" FontSize="16"/>
+                        <TextBlock x:Name="ObsStatusTextBlock" Grid.Column="1" Text="未连接" Foreground="#F44336" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="IP 地址：" Margin="0,0,0,5" Foreground="#666"/>
+                            <TextBox x:Name="ObsIpTextBox" Text="127.0.0.1" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
                         </StackPanel>
-                    </Border>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="端口：" Margin="0,0,0,5" Foreground="#666"/>
+                            <TextBox x:Name="ObsPortTextBox" Text="4455" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                        </StackPanel>
+                    </Grid>
 
-                    <!-- 第二部分：OBS 控制配置 -->
-                    <Border Grid.Row="1" BorderBrush="#EEE" BorderThickness="1" CornerRadius="5" Padding="15" Background="#FAFAFA">
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="连接密码：" Margin="0,0,0,5" Foreground="#666"/>
+                        <PasswordBox x:Name="ObsPasswordBox" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                    </StackPanel>
+
+                    <Button x:Name="ConnectObsButton" Content="连接 OBS" Height="35" Click="ConnectObsButton_Click" 
+                            Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,20" FontWeight="Bold"/>
+
+                    <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="0,20,0,0">
                         <StackPanel>
-                            <Grid Margin="0,0,0,15">
+                            <TextBlock Text="OBS 麦克风测试：" Margin="0,0,0,5" Foreground="#666"/>
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="2. OBS WebSocket 连接" FontWeight="Bold" Foreground="#333" FontSize="14"/>
-                                <TextBlock x:Name="ObsStatusTextBlock" Grid.Column="1" Text="未连接" Foreground="#F44336" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="ObsSourceComboBox" ToolTip="下拉选择你要控制的 OBS 音轨" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                                <ToggleButton x:Name="TestMuteToggleButton" Grid.Column="2" Content="测试静音" Height="30" Width="100" 
+                                              Click="TestMuteToggleButton_Click" BorderThickness="1" Cursor="Hand" Style="{StaticResource {x:Type ToggleButton}}"/>
                             </Grid>
-
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="IP 地址：" Margin="0,0,0,5"/>
-                                    <TextBox x:Name="ObsIpTextBox" Text="127.0.0.1" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="端口：" Margin="0,0,0,5"/>
-                                    <TextBox x:Name="ObsPortTextBox" Text="4455" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="连接密码：" Margin="0,0,0,5"/>
-                                <PasswordBox x:Name="ObsPasswordBox" Height="25" VerticalContentAlignment="Center" Padding="5,0"/>
-                            </StackPanel>
-
-                            <Button x:Name="ConnectObsButton" Content="连接 OBS" Height="30" Click="ConnectObsButton_Click" 
-                                    Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,15"/>
-
-                            <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Margin="0,0,0,15" Padding="0,15,0,0">
-                                <StackPanel>
-                                    <TextBlock Text="OBS 麦克风测试：" Margin="0,0,0,5"/>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <ComboBox x:Name="ObsSourceComboBox" ToolTip="下拉选择你要控制的 OBS 音轨" Margin="0,0,10,0" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
-                                        <ToggleButton x:Name="TestMuteToggleButton" Grid.Column="1" Content="测试静音" Height="30" Width="100" 
-                                                      Click="TestMuteToggleButton_Click" BorderThickness="1" Cursor="Hand" Style="{StaticResource {x:Type ToggleButton}}"/>
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
                         </StackPanel>
                     </Border>
-                </Grid>
-            </TabItem>
+                </StackPanel>
+            </Grid>
+        </Border>
 
-            <!-- 第二个选项卡：AI 配置 -->
-            <TabItem Header="AI与违禁词配置">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="15">
-                        <TextBlock Text="阿里百炼实时语音模型接入参数" FontWeight="Bold" Margin="0,0,0,15" FontSize="14" Foreground="#333"/>
+        <!-- 右侧分栏：AI 与违禁词字典 -->
+        <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="20">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Opacity="0.05" BlurRadius="10" ShadowDepth="0"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="3. 阿里百炼语音模型接口" FontWeight="Bold" Margin="0,0,0,15" FontSize="16" Foreground="#333"/>
 
-                        <TextBlock Text="API Key:" Margin="0,0,0,5"/>
-                        <TextBox x:Name="ApiKeyTextBox" Height="25" Margin="0,0,0,15" VerticalContentAlignment="Center"/>
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="API Key:" Margin="0,0,0,5" Foreground="#666"/>
+                            <TextBox x:Name="ApiKeyTextBox" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="App Id (可选):" Margin="0,0,0,5" Foreground="#666"/>
+                            <TextBox x:Name="AppIdTextBox" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
 
-                        <TextBlock Text="App Id (如不强制则可留白):" Margin="0,0,0,5"/>
-                        <TextBox x:Name="AppIdTextBox" Height="25" Margin="0,0,0,15" VerticalContentAlignment="Center"/>
+                <StackPanel Grid.Row="1" Margin="0,5,0,15">
+                    <TextBlock Text="4. AI 屏蔽词与专属美化音字典" FontWeight="Bold" Margin="0,0,0,10" FontSize="16" Foreground="#333"/>
+                    
+                    <DataGrid x:Name="RuleGroupsDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True"
+                              Background="White" AlternatingRowBackground="#F9F9F9" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#EEE"
+                              RowHeight="50" ColumnHeaderHeight="35" BorderBrush="#DDD" VerticalScrollBarVisibility="Auto" Height="270">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="规则组名" Binding="{Binding GroupName}" Width="110" />
+                            <DataGridTemplateColumn Header="限制词池 / 宏" Width="180">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Words}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Words, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="2" VerticalContentAlignment="Top"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="专属美化音路径" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding SoundPath}" VerticalAlignment="Center" Margin="8,0" TextTrimming="CharacterEllipsis"/>
+                                            <Button Grid.Column="1" Content="浏览..." Width="60" Click="BrowseSoundButton_Click" Background="#E0E0E0" BorderThickness="0" Margin="5,4" Cursor="Hand" Focusable="False"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding SoundPath, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Padding="5,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
 
-                        <TextBlock Text="违禁词字典 (逗号或换行分割):" Margin="0,0,0,5"/>
-                        <TextBox x:Name="BannedWordsTextBox" Height="100" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15"/>
+                    <Grid Margin="0,15,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="AddRowButton" Content="➕ 新增词池规则组" Height="35" Click="AddRowButton_Click" 
+                                Background="#E3F2FD" Foreground="#1976D2" BorderThickness="1" BorderBrush="#BBDEFB" Cursor="Hand" FontWeight="Bold"/>
 
-                        <Button x:Name="SaveConfigButton" Content="保存配置并重载引擎" Height="35" Click="SaveConfigButton_Click" 
-                                Background="#4CAF50" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,15"/>
+                        <Button x:Name="SaveConfigButton" Grid.Column="2" Content="应用并保存配置" Height="35" Click="SaveConfigButton_Click" 
+                                Background="#4CAF50" Foreground="White" BorderThickness="0" Cursor="Hand" FontWeight="Bold"/>
+                    </Grid>
+                </StackPanel>
 
-                        <!-- 调试追踪区域 -->
-                        <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="5" Padding="15" Background="#FAFAFA">
-                            <StackPanel>
-                                <Grid Margin="0,0,0,10">
-                                    <TextBlock Text="引擎连接测试:" FontWeight="Bold"/>
-                                    <TextBlock x:Name="SttStatusTextBlock" Text="未连接" Foreground="#F44336" FontWeight="Bold" HorizontalAlignment="Right"/>
-                                </Grid>
-                                <Button x:Name="TestSttConnectButton" Content="测试 STT 身份鉴权" Height="30" Click="TestSttConnectButton_Click" Margin="0,0,0,10"/>
+                <!-- 调试追踪区域 -->
+                <Border Grid.Row="2" BorderBrush="#DDD" BorderThickness="1" CornerRadius="5" Padding="15" Background="#FAFAFA">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="引擎状态监控" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="SttStatusTextBlock" Grid.Column="1" Text="未连接" Margin="10,0,0,0" Foreground="#F44336" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <Button x:Name="TestSttConnectButton" Grid.Column="2" Content="连接测试" Height="28" Width="80" Click="TestSttConnectButton_Click"/>
+                        </Grid>
 
-                                <TextBlock Text="识别反馈实时预览:" Margin="0,10,0,5" Foreground="#666"/>
-                                <TextBox x:Name="RecognizedResultTextBox" Height="60" TextWrapping="Wrap" IsReadOnly="True" Background="#EFEFEF"/>
-                            </StackPanel>
-                        </Border>
-
+                        <TextBlock Text="实时拦截日志:" Margin="0,0,0,5" Foreground="#666"/>
+                        <TextBox x:Name="RecognizedResultTextBox" Height="80" TextWrapping="Wrap" IsReadOnly="True" Background="#EFEFEF" Padding="5" VerticalScrollBarVisibility="Auto"/>
                     </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-        </TabControl>
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

@@ -1,5 +1,21 @@
 {
   "ApiKey": "sk-e1710765b7d14255b646337851d4a5d8",
   "AppId": "2469899",
-  "BannedWords": "\u6D4B\u8BD5\u8FDD\u7981\u8BCD,\u50BBX,SB,\u5F31\u667A,\u8349\uFF0C\u64CD\uFF0C\u64CD\uFF0C\u4E00\u6735\u9C9C\u82B1\u3002fuck"
+  "RuleGroups": [
+    {
+      "GroupName": "\u65B0\u89C4\u5219\u7EC4",
+      "Words": "6,7,8\uFF0C\u9760,\u4ED6\u5988,#\u57CE\u5E02#",
+      "SoundPath": "P:\\\u7D20\u6750\\086 \u77ED\u97F3\u6548\u7D20\u6750\\\u2605\u2605\u6296\u97F3\u5E38\u7528\u5168\u5957\u97F3\u6548\u2605\u2605\\\u7EFC\u827A\u97F3\u6548\\\u54D42.mp3"
+    },
+    {
+      "GroupName": "\u65B0\u89C4\u5219\u7EC4",
+      "Words": "1,2,\u4E00\uFF0C\u4E8C#\u660E\u661F#",
+      "SoundPath": "P:\\\u7D20\u6750\\086 \u77ED\u97F3\u6548\u7D20\u6750\\\u2605\u2605\u6296\u97F3\u5E38\u7528\u5168\u5957\u97F3\u6548\u2605\u2605\\\u7EFC\u827A\u97F3\u6548\\\u5C4F\u853D\u810F\u8BDD.mp3"
+    },
+    {
+      "GroupName": "\u65B0\u89C4\u5219\u7EC4",
+      "Words": "3,4,5",
+      "SoundPath": "P:\\\u7D20\u6750\\086 \u77ED\u97F3\u6548\u7D20\u6750\\\u2605\u2605\u6296\u97F3\u5E38\u7528\u5168\u5957\u97F3\u6548\u2605\u2605\\\u7EFC\u827A\u97F3\u6548\\\u201C\u5582\u201D.mp3"
+    }
+  ]
 }

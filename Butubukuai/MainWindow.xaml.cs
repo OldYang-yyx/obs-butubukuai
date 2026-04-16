@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Butubukuai;
@@ -51,10 +52,12 @@ public partial class MainWindow : Window
         _config = ConfigManager.Load();
         ApiKeyTextBox.Text = _config.ApiKey;
         AppIdTextBox.Text = _config.AppId;
-        BannedWordsTextBox.Text = _config.BannedWords;
+        
+        // 绑定到 DataGrid
+        RuleGroupsDataGrid.ItemsSource = _config.RuleGroups;
 
         // 初始化词库
-        _filterEngine.LoadWords(_config.BannedWords);
+        _filterEngine.LoadWords(_config.RuleGroups);
     }
 
     /// <summary>
@@ -88,12 +91,46 @@ public partial class MainWindow : Window
     {
         _config.ApiKey = ApiKeyTextBox.Text.Trim();
         _config.AppId = AppIdTextBox.Text.Trim();
-        _config.BannedWords = BannedWordsTextBox.Text.Trim();
 
+        // 绑定机制会自动更新 RuleGroups，我们直接将内存状态存回本地并刷新底层引擎
         ConfigManager.Save(_config);
-        _filterEngine.LoadWords(_config.BannedWords);
+        _filterEngine.LoadWords(_config.RuleGroups);
 
-        MessageBox.Show($"配置已保存并热重载引擎。\n当前已加载 {_filterEngine.BannedWordCount} 个违禁词。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+        MessageBox.Show($"配置已保存并热重载引擎。\n当前总词池实际展开：{_filterEngine.BannedWordCount} 个阻断词。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    /// <summary>
+    /// 手动添加一行新规则
+    /// </summary>
+    private void AddRowButton_Click(object sender, RoutedEventArgs e)
+    {
+        var newItem = new RuleGroup { GroupName = "新规则组", Words = "靠,他妈,#城市#", SoundPath = "" };
+        _config.RuleGroups.Add(newItem);
+        if (_config.RuleGroups.Count > 0)
+        {
+            RuleGroupsDataGrid.ScrollIntoView(newItem);
+        }
+    }
+
+    /// <summary>
+    /// 处理表格中选取专属媒体音文件的操作
+    /// </summary>
+    private void BrowseSoundButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.DataContext is RuleGroup item)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Audio Files|*.wav;*.mp3|All Files|*.*",
+                Title = "选择专属替换音"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                item.SoundPath = openFileDialog.FileName;
+                // 注意：不再调用 Refresh()！因为后台的 RuleGroup 已实现 INotifyPropertyChanged，UI将自动刷新
+            }
+        }
     }
 
     /// <summary>
@@ -191,10 +228,10 @@ public partial class MainWindow : Window
             RecognizedResultTextBox.Text = log + RecognizedResultTextBox.Text;
 
             // 核心逻辑：触发判定
-            var (isMatch, durationMs) = _filterEngine.CheckAndGetDuration(e);
+            var (isMatch, durationMs, soundPath) = _filterEngine.CheckAndGetDuration(e);
             if (isMatch)
             {
-                TriggerCensorship(text, durationMs);
+                TriggerCensorship(text, durationMs, soundPath);
             }
         });
     }
@@ -211,9 +248,9 @@ public partial class MainWindow : Window
     /// <summary>
     /// 触发阻断和发声 (带防抖的自动解封)
     /// </summary>
-    private async void TriggerCensorship(string matchedText, int durationMs)
+    private async void TriggerCensorship(string matchedText, int durationMs, string soundPath)
     {
-        System.Media.SystemSounds.Beep.Play();
+        AudioPlayerHelper.PlaySound(soundPath);
 
         string? sourceName = ObsSourceComboBox.SelectedItem as string;
         if (string.IsNullOrEmpty(sourceName) || !_obsService.IsConnected) return;
