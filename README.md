@@ -24,6 +24,8 @@
 
 4. 快速上手
 
+⚠️ **重要提示**：在下载代码进行本地运行或开发前，请务必先将项目中的 `appconfig.example.json` 复制一份并重命名为 `appconfig.json`，然后填入你自己真实的 API Key 和 App Id！
+
 [下载 Release 中的 exe] -> [配置 API Key] -> [连接 OBS] -> [开播]。
 
 5. 鸣谢与贡献

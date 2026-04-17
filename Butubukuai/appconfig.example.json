@@ -1,0 +1,16 @@
+{
+  "ApiKey": "",
+  "AppId": "",
+  "RuleGroups": [
+    {
+      "GroupName": "默认测试词库 (系统提示音)",
+      "Words": "测试,测试词1,测试词2",
+      "SoundPath": "SystemAsterisk"
+    },
+    {
+      "GroupName": "脏话检测组示例",
+      "Words": "靠,他大爷的,尼玛",
+      "SoundPath": "SystemBeep"
+    }
+  ]
+}
