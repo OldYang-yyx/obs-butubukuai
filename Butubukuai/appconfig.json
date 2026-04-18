@@ -1,21 +1,26 @@
 {
   "ApiKey": "sk-e1710765b7d14255b646337851d4a5d8",
-  "AppId": "2469899",
+  "ObsIpAddress": "127.0.0.1",
+  "ObsPort": 4455,
+  "ObsPassword": "123456",
+  "ObsMediaSourceName": "\u7F8E\u5316\u97F3\u8F68\u9053",
+  "ObsSyncDelay": 2000,
+  "FineTuneOffset": -500,
   "RuleGroups": [
     {
       "GroupName": "\u65B0\u89C4\u5219\u7EC4",
-      "Words": "6,7,8\uFF0C\u9760,\u4ED6\u5988,#\u57CE\u5E02#",
+      "Words": "6,7,8\uFF0C\u516D\uFF0C\u4E03\uFF0C\u516B\uFF0C\u9760,\u4ED6\u5988,#\u57CE\u5E02#",
       "SoundPath": "P:\\\u7D20\u6750\\086 \u77ED\u97F3\u6548\u7D20\u6750\\\u2605\u2605\u6296\u97F3\u5E38\u7528\u5168\u5957\u97F3\u6548\u2605\u2605\\\u7EFC\u827A\u97F3\u6548\\\u54D42.mp3"
     },
     {
       "GroupName": "\u65B0\u89C4\u5219\u7EC4",
-      "Words": "1,2,\u4E00\uFF0C\u4E8C#\u660E\u661F#",
+      "Words": "1,2,\u4E00\uFF0C\u4E8C\uFF0C#\u660E\u661F#",
       "SoundPath": "P:\\\u7D20\u6750\\086 \u77ED\u97F3\u6548\u7D20\u6750\\\u2605\u2605\u6296\u97F3\u5E38\u7528\u5168\u5957\u97F3\u6548\u2605\u2605\\\u7EFC\u827A\u97F3\u6548\\\u5C4F\u853D\u810F\u8BDD.mp3"
     },
     {
       "GroupName": "\u65B0\u89C4\u5219\u7EC4",
-      "Words": "3,4,5",
-      "SoundPath": "P:\\\u7D20\u6750\\086 \u77ED\u97F3\u6548\u7D20\u6750\\\u2605\u2605\u6296\u97F3\u5E38\u7528\u5168\u5957\u97F3\u6548\u2605\u2605\\\u7EFC\u827A\u97F3\u6548\\\u201C\u5582\u201D.mp3"
+      "Words": "3,4,5\uFF0C\u4E09\uFF0C\u56DB\uFF0C\u4E94",
+      "SoundPath": "P:\\\u7D20\u6750\\086 \u77ED\u97F3\u6548\u7D20\u6750\\\u2605\u2605\u6296\u97F3\u5E38\u7528\u5168\u5957\u97F3\u6548\u2605\u2605\\\u7EFC\u827A\u97F3\u6548\\\u54D41.mp3"
     }
   ]
 }

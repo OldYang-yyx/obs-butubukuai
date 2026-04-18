@@ -32,15 +32,22 @@ namespace Butubukuai
         /// </summary>
         public event EventHandler<RecognizedTextEventArgs>? OnTextRecognized;
         public event EventHandler<string>? OnError;
+        public event EventHandler? OnConnected;
+        public event EventHandler? OnDisconnected;
 
         public bool IsConnected => _webSocket?.State == WebSocketState.Open;
+
+        private string _currentApiKey = string.Empty;
+        private bool _isManualDisconnect = false;
 
         /// <summary>
         /// 启动连接并发送配置握手帧
         /// </summary>
         public async Task ConnectAsync(string apiKey)
         {
-            Disconnect();
+            _isManualDisconnect = false;
+            _currentApiKey = apiKey;
+            DisconnectInternal(false);
             
             _webSocket = new ClientWebSocket();
             _cts = new CancellationTokenSource();
@@ -55,6 +62,9 @@ namespace Butubukuai
                 // 握手成功后，首包必须是一个 JSON 配置帧 (强制要求 16000Hz, PCM)
                 await SendInitialConfigFrameAsync();
 
+                // 发出连接成功事件
+                OnConnected?.Invoke(this, EventArgs.Empty);
+
                 // 启动底层的后台接收环
                 _ = ReceiveLoopAsync(_cts.Token);
             }
@@ -65,6 +75,12 @@ namespace Butubukuai
         }
 
         public void Disconnect()
+        {
+            _isManualDisconnect = true;
+            DisconnectInternal(true);
+        }
+
+        private void DisconnectInternal(bool wait)
         {
             try
             {
@@ -77,7 +93,7 @@ namespace Butubukuai
                 {
                     // 仅发出关闭请求即返回
                     var closeTask = _webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Client disconnecting", CancellationToken.None);
-                    closeTask.Wait(1000); 
+                    if (wait) closeTask.Wait(1000); 
                 }
             }
             catch { }
@@ -165,7 +181,12 @@ namespace Butubukuai
                     var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        Disconnect();
+                        DisconnectInternal(false);
+                        if (!_isManualDisconnect) 
+                        {
+                            OnDisconnected?.Invoke(this, EventArgs.Empty);
+                            _ = AutoReconnectAsync();
+                        }
                         break;
                     }
 
@@ -193,7 +214,29 @@ namespace Butubukuai
                 catch (Exception ex)
                 {
                     OnError?.Invoke(this, $"STT 接收循环断开: {ex.Message}");
+                    if (!_isManualDisconnect) 
+                    {
+                        OnDisconnected?.Invoke(this, EventArgs.Empty);
+                        _ = AutoReconnectAsync();
+                    }
                     break;
+                }
+            }
+        }
+
+        private async Task AutoReconnectAsync()
+        {
+            while (!_isManualDisconnect)
+            {
+                await Task.Delay(3000);
+                try
+                {
+                    await ConnectAsync(_currentApiKey);
+                    break;
+                }
+                catch
+                {
+                    // 继续重试
                 }
             }
         }

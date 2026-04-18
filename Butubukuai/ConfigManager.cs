@@ -39,11 +39,12 @@ namespace Butubukuai
     public class AppConfig
     {
         public string ApiKey { get; set; } = string.Empty;
-        public string AppId { get; set; } = string.Empty;
         public string ObsIpAddress { get; set; } = "127.0.0.1";
         public int ObsPort { get; set; } = 4455;
         public string ObsPassword { get; set; } = "123456";
         public string ObsMediaSourceName { get; set; } = "美化音轨道";
+        public int ObsSyncDelay { get; set; } = 2000;
+        public int FineTuneOffset { get; set; } = 0;
         public ObservableCollection<RuleGroup> RuleGroups { get; set; } = new ObservableCollection<RuleGroup>();
     }
 

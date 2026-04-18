@@ -6,6 +6,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
 using System.Windows.Navigation;
+using NAudio.Wave;
+using System.IO;
 
 namespace Butubukuai;
 
@@ -21,6 +23,13 @@ public partial class MainWindow : Window
     private AppConfig _config = new AppConfig();
     private bool _isRecording = false;
     private System.Threading.CancellationTokenSource? _unmuteCts;
+
+    // 校准舱专用变量
+    private bool _isCalibrationRecording = false;
+    private bool _isCalibrationIntercepting = false;
+    private WaveFileWriter? _calibrationWriter;
+    private Stopwatch _calibrationStopwatch = new Stopwatch();
+    private long _recordedTriggerTimeMs = 0;
 
     public MainWindow()
     {
@@ -40,6 +49,8 @@ public partial class MainWindow : Window
         _sttService = new STTService();
         _sttService.OnTextRecognized += SttService_OnTextRecognized;
         _sttService.OnError += SttService_OnError;
+        _sttService.OnDisconnected += SttService_OnDisconnected;
+        _sttService.OnConnected += SttService_OnConnected;
 
         // 4. 加载配置和下拉框信息
         LoadConfigData();
@@ -53,12 +64,13 @@ public partial class MainWindow : Window
     {
         _config = ConfigManager.Load();
         ApiKeyTextBox.Text = _config.ApiKey;
-        AppIdTextBox.Text = _config.AppId;
         
         ObsIpTextBox.Text = _config.ObsIpAddress;
         ObsPortTextBox.Text = _config.ObsPort.ToString();
         ObsPasswordBox.Password = _config.ObsPassword;
         ObsMediaSourceNameTextBox.Text = _config.ObsMediaSourceName;
+        ObsSyncDelayTextBox.Text = _config.ObsSyncDelay.ToString();
+        FineTuneOffsetSlider.Value = _config.FineTuneOffset;
 
         // 绑定到 DataGrid
         RuleGroupsDataGrid.ItemsSource = _config.RuleGroups;
@@ -97,11 +109,12 @@ public partial class MainWindow : Window
     private void SaveConfigButton_Click(object sender, RoutedEventArgs e)
     {
         _config.ApiKey = ApiKeyTextBox.Text.Trim();
-        _config.AppId = AppIdTextBox.Text.Trim();
         _config.ObsIpAddress = ObsIpTextBox.Text.Trim();
         if (int.TryParse(ObsPortTextBox.Text.Trim(), out int port)) _config.ObsPort = port;
         _config.ObsPassword = ObsPasswordBox.Password;
         _config.ObsMediaSourceName = ObsMediaSourceNameTextBox.Text.Trim();
+        if (int.TryParse(ObsSyncDelayTextBox.Text.Trim(), out int syncDelay)) _config.ObsSyncDelay = syncDelay;
+        _config.FineTuneOffset = (int)FineTuneOffsetSlider.Value;
 
         // 绑定机制会自动更新 RuleGroups，我们直接将内存状态存回本地并刷新底层引擎
         ConfigManager.Save(_config);
@@ -149,6 +162,16 @@ public partial class MainWindow : Window
     /// </summary>
     private async void TestSttConnectButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_sttService.IsConnected)
+        {
+            _sttService.Disconnect();
+            SttStatusTextBlock.Text = "已断开";
+            SttStatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54)); // Red
+            TestSttConnectButton.Content = "[第 3 步] 连通 AI 大脑";
+            TestSttConnectButton.Background = new SolidColorBrush(Color.FromRgb(156, 39, 176)); // #9C27B0
+            return;
+        }
+
         string apiKey = ApiKeyTextBox.Text.Trim();
         if (string.IsNullOrEmpty(apiKey))
         {
@@ -163,8 +186,7 @@ public partial class MainWindow : Window
         try
         {
             await _sttService.ConnectAsync(apiKey);
-            SttStatusTextBlock.Text = "已连接并鉴权成功 (待命中)";
-            SttStatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
+            // OnConnected 事件将接管 UI 的成功状态变更
         }
         catch (Exception ex)
         {
@@ -190,7 +212,7 @@ public partial class MainWindow : Window
                 _audioManager.StartRecording(deviceNumber);
                 _isRecording = true;
                 
-                ToggleRecordButton.Content = "停止采集";
+                ToggleRecordButton.Content = "[第 1 步] 停止采集";
                 ToggleRecordButton.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)); // Red
                 MicComboBox.IsEnabled = false;
             }
@@ -204,7 +226,7 @@ public partial class MainWindow : Window
             _audioManager.StopRecording();
             _isRecording = false;
 
-            ToggleRecordButton.Content = "开始采集";
+            ToggleRecordButton.Content = "[第 1 步] 开启麦克风监听";
             ToggleRecordButton.Background = new SolidColorBrush(Color.FromRgb(33, 150, 243)); // Blue
             MicComboBox.IsEnabled = true;
         }
@@ -219,6 +241,15 @@ public partial class MainWindow : Window
         {
             // 通过后台发送，避免稍微堆积卡死UI或拉流
             _ = _sttService.SendAudioDataAsync(pcmData);
+        }
+
+        if (_isCalibrationRecording && _calibrationWriter != null)
+        {
+            try
+            {
+                _calibrationWriter.Write(pcmData, 0, pcmData.Length);
+            }
+            catch { }
         }
     }
 
@@ -256,14 +287,45 @@ public partial class MainWindow : Window
         });
     }
 
+    private async void SttService_OnDisconnected(object? sender, EventArgs e)
+    {
+        await Dispatcher.InvokeAsync(async () =>
+        {
+            SttStatusTextBlock.Text = "断线重连中...";
+            SttStatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54)); // Red
+            TestSttConnectButton.Content = "[第 3 步] 异常断线拉响警报";
+
+            for (int i = 0; i < 3; i++)
+            {
+                System.Media.SystemSounds.Exclamation.Play();
+                await Task.Delay(500);
+            }
+        });
+    }
+
+    private void SttService_OnConnected(object? sender, EventArgs e)
+    {
+        Dispatcher.InvokeAsync(() =>
+        {
+            SttStatusTextBlock.Text = "已连接并鉴权成功 (待命中)";
+            SttStatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
+            TestSttConnectButton.Content = "[第 3 步] 断开 AI 大脑";
+            TestSttConnectButton.Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)); // Red
+        });
+    }
+
     /// <summary>
     /// 触发阻断和发声 (带防抖的自动解封)
     /// </summary>
     private async void TriggerCensorship(string matchedText, int durationMs, string soundPath)
     {
-        if (!string.IsNullOrEmpty(soundPath))
+        if (_isCalibrationIntercepting)
         {
-            _obsService.PlayMediaSource(_config.ObsMediaSourceName, soundPath);
+            if (_recordedTriggerTimeMs == 0)
+            {
+                _recordedTriggerTimeMs = _calibrationStopwatch.ElapsedMilliseconds;
+            }
+            return; // 拦截触发，不操作 OBS
         }
 
         string? sourceName = ObsSourceComboBox.SelectedItem as string;
@@ -276,20 +338,39 @@ public partial class MainWindow : Window
             _unmuteCts = new System.Threading.CancellationTokenSource();
             var token = _unmuteCts.Token;
 
-            // 2. 立即实施静音屏蔽
-            _obsService.SetSourceMute(sourceName, true);
-            TestMuteToggleButton.IsChecked = true;
-            TestMuteToggleButton.Content = $"静音阻断 ({durationMs}ms)...";
+            int syncDelay = 2000;
+            int fineTune = 0;
+            Application.Current.Dispatcher.Invoke(() => 
+            {
+                if (int.TryParse(ObsSyncDelayTextBox.Text.Trim(), out int val)) syncDelay = val;
+                fineTune = (int)FineTuneOffsetSlider.Value;
+            });
 
-            // 3. 异步倒计时动态计算出的毫秒数
+            // 2. 狙击手延迟算法：真机耳返计算法
+            int waitTime = syncDelay - 600 + fineTune;
+            if (waitTime < 0) waitTime = 0;
+
+            if (waitTime > 0)
+            {
+                await Task.Delay(waitTime, token);
+            }
+
+            // 3. 闭麦！实施静音屏蔽
+            _obsService.SetSourceMute(sourceName, true);
+            
+            // 播放双轨美化音！
+            if (!string.IsNullOrEmpty(soundPath))
+            {
+                _obsService.PlayMediaSource(_config.ObsMediaSourceName, soundPath);
+            }
+
+            // 4. 异步倒计时动态计算出的毫秒数，保持闭麦度过违禁词时长
             await Task.Delay(durationMs, token);
 
-            // 4. 等待结束且没有被新的违禁词打断，则完全解封
+            // 5. 等待结束且没有被新的违禁词打断，则完全解封
             if (!token.IsCancellationRequested)
             {
                 _obsService.SetSourceMute(sourceName, false);
-                TestMuteToggleButton.IsChecked = false;
-                TestMuteToggleButton.Content = "测试静音";
             }
         }
         catch (TaskCanceledException)
@@ -342,10 +423,8 @@ public partial class MainWindow : Window
                 ConnectObsButton.Content = "连接 OBS";
                 ConnectObsButton.Background = new SolidColorBrush(Color.FromRgb(255, 152, 0)); // Orange
                 
-                // 断开连接后清空列表并自动复位测试按钮状态
+                // 断开连接后清空列表
                 ObsSourceComboBox.ItemsSource = null;
-                TestMuteToggleButton.IsChecked = false;
-                TestMuteToggleButton.Content = "测试静音";
             }
             
             ConnectObsButton.IsEnabled = true;
@@ -391,36 +470,107 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// 测试静音按钮点击事件，调用 OBS 服务改变状态
-    /// </summary>
-    private void TestMuteToggleButton_Click(object sender, RoutedEventArgs e)
+    private async void RecordTestAudio_Click(object sender, RoutedEventArgs e)
     {
-        string? sourceName = ObsSourceComboBox.SelectedItem as string;
-        if (string.IsNullOrEmpty(sourceName))
+        if (!_isRecording)
         {
-            TestMuteToggleButton.IsChecked = false;
-            MessageBox.Show("未识别到有效的 OBS 输入源，请连接 OBS 并从下拉框选择一个测试音轨。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("请先在第一步开启麦克风监听！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
-        if (!_obsService.IsConnected)
-        {
-            TestMuteToggleButton.IsChecked = false;
-            MessageBox.Show("暂未连接到 OBS，请先进行连接再测试。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
+        RecordTestAudioButton.IsEnabled = false;
+        PlayVerifyAudioButton.IsEnabled = false;
+        RecordTestAudioButton.Content = "录音中...";
+        _recordedTriggerTimeMs = 0;
 
-        bool isMuted = TestMuteToggleButton.IsChecked == true;
         try
         {
-            _obsService.SetSourceMute(sourceName, isMuted);
-            TestMuteToggleButton.Content = isMuted ? "已处于静音" : "测试静音";
+            _calibrationWriter = new WaveFileWriter("temp_test.wav", new WaveFormat(16000, 16, 1));
+            _isCalibrationRecording = true;
+            _isCalibrationIntercepting = true;
+            _calibrationStopwatch.Restart();
+
+            await Task.Delay(5000);
+
+            _isCalibrationRecording = false;
+            _calibrationWriter?.Dispose();
+            _calibrationWriter = null;
+            
+            RecordTestAudioButton.Content = "分析中...";
+            
+            // 额外等待 API 后置返回
+            await Task.Delay(1500);
+
+            if (_recordedTriggerTimeMs > 0)
+            {
+                PlayVerifyAudioButton.IsEnabled = true;
+                RecordTestAudioButton.Content = "🔴 重新录制";
+                MessageBox.Show("录制成功并捕获到违禁词！可以点击播放验证了。", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                RecordTestAudioButton.Content = "🔴 录音未捕获违禁词";
+                MessageBox.Show("未在刚才的录音中检测到违禁词，或者断网迟滞。请重试。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
         catch (Exception ex)
         {
-            TestMuteToggleButton.IsChecked = !isMuted; // 恢复之前的选中状态
-            MessageBox.Show($"操作 OBS 失败：{ex.Message}\n请检查“{sourceName}”是否存在于 OBS 场景/音频混合器中。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"录制出错: {ex.Message}");
+            RecordTestAudioButton.Content = "🔴 录制 5 秒测试音";
+        }
+        finally
+        {
+            _isCalibrationIntercepting = false;
+            _calibrationStopwatch.Stop();
+            RecordTestAudioButton.IsEnabled = true;
+            if (_recordedTriggerTimeMs == 0) RecordTestAudioButton.Content = "🔴 录制 5 秒测试音";
+        }
+    }
+
+    private async void PlayVerifyAudio_Click(object sender, RoutedEventArgs e)
+    {
+        if (!File.Exists("temp_test.wav")) return;
+
+        PlayVerifyAudioButton.IsEnabled = false;
+        try
+        {
+            using var reader = new AudioFileReader("temp_test.wav");
+            using var waveOut = new WaveOutEvent();
+            waveOut.Init(reader);
+            waveOut.Play();
+
+            int fineTune = 0;
+            if (Application.Current != null)
+            {
+                fineTune = (int)FineTuneOffsetSlider.Value;
+            }
+
+            // 倒计时核心：记录的耗时 (也就是 T_trigger) - 预估API(600) + 微调
+            int beepWait = (int)_recordedTriggerTimeMs - 600 + fineTune;
+            if (beepWait < 0) beepWait = 0;
+
+            if (beepWait > 0)
+            {
+                // 等待到该 Beep 的时刻
+                await Task.Delay(beepWait);
+            }
+
+            // 发出 Beep 声
+            System.Media.SystemSounds.Beep.Play();
+
+            // 等待音频播完 (保护防抖)
+            while (waveOut.PlaybackState == PlaybackState.Playing)
+            {
+                await Task.Delay(100);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"播放出错: {ex.Message}");
+        }
+        finally
+        {
+            PlayVerifyAudioButton.IsEnabled = true;
         }
     }
 
