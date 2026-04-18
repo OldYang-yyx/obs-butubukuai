@@ -125,5 +125,27 @@ namespace Butubukuai
             // OBS WebSocket v5 使用 SetInputMute 方法控制音轨状态
             _obs.SetInputMute(sourceName, isMute);
         }
+
+        /// <summary>
+        /// 播放指定媒体源的文件
+        /// </summary>
+        /// <param name="sourceName">媒体源名称</param>
+        /// <param name="filePath">文件路径</param>
+        public void PlayMediaSource(string sourceName, string filePath)
+        {
+            if (!_obs.IsConnected) return;
+
+            try
+            {
+                var inputSettings = new Newtonsoft.Json.Linq.JObject();
+                inputSettings["local_file"] = filePath;
+                _obs.SetInputSettings(sourceName, inputSettings);
+                _obs.TriggerMediaInputAction(sourceName, "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"播放媒体源失败: {ex.Message}");
+            }
+        }
     }
 }

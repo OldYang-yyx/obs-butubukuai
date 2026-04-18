@@ -119,11 +119,11 @@ namespace Butubukuai
                         }
                     }
 
-                    // 优先使用查到的精确时长，如果没有则退回到句子的时长/默认时长
-                    int currentDuration = exactDuration > 0 ? exactDuration : args.DurationMs;
+                    // 优先使用查到的精确时长，如果没有则使用动态字长估算算法
+                    int currentDuration = exactDuration > 0 ? exactDuration : (word.Length * 250);
                     
-                    // 安全缓冲算法 (+300ms)
-                    currentDuration += 300;
+                    // 安全缓冲算法 (+100ms) 确保单字限制绝不吞掉下一个字
+                    currentDuration += 100;
 
                     if (currentDuration > finalDuration)
                     {

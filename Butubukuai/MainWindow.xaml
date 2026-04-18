@@ -77,6 +77,11 @@
                                 <PasswordBox x:Name="ObsPasswordBox" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
                             </StackPanel>
 
+                            <StackPanel Margin="0,0,0,15">
+                                <TextBlock Text="美化音轨道名称：" Margin="0,0,0,5" Foreground="#666"/>
+                                <TextBox x:Name="ObsMediaSourceNameTextBox" Text="美化音轨道" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                            </StackPanel>
+
                             <Button x:Name="ConnectObsButton" Content="一键连接 OBS" Height="35" Click="ConnectObsButton_Click" 
                                     Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,15" FontWeight="Bold"/>
 

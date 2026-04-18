@@ -58,6 +58,7 @@ public partial class MainWindow : Window
         ObsIpTextBox.Text = _config.ObsIpAddress;
         ObsPortTextBox.Text = _config.ObsPort.ToString();
         ObsPasswordBox.Password = _config.ObsPassword;
+        ObsMediaSourceNameTextBox.Text = _config.ObsMediaSourceName;
 
         // 绑定到 DataGrid
         RuleGroupsDataGrid.ItemsSource = _config.RuleGroups;
@@ -100,6 +101,7 @@ public partial class MainWindow : Window
         _config.ObsIpAddress = ObsIpTextBox.Text.Trim();
         if (int.TryParse(ObsPortTextBox.Text.Trim(), out int port)) _config.ObsPort = port;
         _config.ObsPassword = ObsPasswordBox.Password;
+        _config.ObsMediaSourceName = ObsMediaSourceNameTextBox.Text.Trim();
 
         // 绑定机制会自动更新 RuleGroups，我们直接将内存状态存回本地并刷新底层引擎
         ConfigManager.Save(_config);
@@ -259,7 +261,10 @@ public partial class MainWindow : Window
     /// </summary>
     private async void TriggerCensorship(string matchedText, int durationMs, string soundPath)
     {
-        AudioPlayerHelper.PlaySound(soundPath);
+        if (!string.IsNullOrEmpty(soundPath))
+        {
+            _obsService.PlayMediaSource(_config.ObsMediaSourceName, soundPath);
+        }
 
         string? sourceName = ObsSourceComboBox.SelectedItem as string;
         if (string.IsNullOrEmpty(sourceName) || !_obsService.IsConnected) return;
