@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Diagnostics;
+using System.Windows.Navigation;
 
 namespace Butubukuai;
 
@@ -53,6 +55,10 @@ public partial class MainWindow : Window
         ApiKeyTextBox.Text = _config.ApiKey;
         AppIdTextBox.Text = _config.AppId;
         
+        ObsIpTextBox.Text = _config.ObsIpAddress;
+        ObsPortTextBox.Text = _config.ObsPort.ToString();
+        ObsPasswordBox.Password = _config.ObsPassword;
+
         // 绑定到 DataGrid
         RuleGroupsDataGrid.ItemsSource = _config.RuleGroups;
 
@@ -91,6 +97,9 @@ public partial class MainWindow : Window
     {
         _config.ApiKey = ApiKeyTextBox.Text.Trim();
         _config.AppId = AppIdTextBox.Text.Trim();
+        _config.ObsIpAddress = ObsIpTextBox.Text.Trim();
+        if (int.TryParse(ObsPortTextBox.Text.Trim(), out int port)) _config.ObsPort = port;
+        _config.ObsPassword = ObsPasswordBox.Password;
 
         // 绑定机制会自动更新 RuleGroups，我们直接将内存状态存回本地并刷新底层引擎
         ConfigManager.Save(_config);
@@ -419,5 +428,29 @@ public partial class MainWindow : Window
         _audioManager.StopRecording();
         _obsService.Disconnect();
         base.OnClosed(e);
+    }
+
+    /// <summary>
+    /// 打开/关闭 帮助抽屉面板
+    /// </summary>
+    private void HelpButton_Click(object sender, RoutedEventArgs e)
+    {
+        HelpFlyout.Visibility = HelpFlyout.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    /// <summary>
+    /// 处理富文本中的超链接点击，在系统默认浏览器中打开
+    /// </summary>
+    private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            e.Handled = true;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"无法打开链接：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

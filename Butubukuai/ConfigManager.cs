@@ -40,6 +40,9 @@ namespace Butubukuai
     {
         public string ApiKey { get; set; } = string.Empty;
         public string AppId { get; set; } = string.Empty;
+        public string ObsIpAddress { get; set; } = "127.0.0.1";
+        public int ObsPort { get; set; } = 4455;
+        public string ObsPassword { get; set; } = "123456";
         public ObservableCollection<RuleGroup> RuleGroups { get; set; } = new ObservableCollection<RuleGroup>();
     }
 
