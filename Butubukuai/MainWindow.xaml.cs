@@ -608,4 +608,41 @@ public partial class MainWindow : Window
             MessageBox.Show($"无法打开链接：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    /// <summary>
+    /// 点击查看帮助大图
+    /// </summary>
+    private void ShowLargeImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is string imagePath)
+        {
+            try
+            {
+                LargeImageControl.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(imagePath));
+                LargeImageViewer.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("加载图片失败: " + ex.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 点击关闭大图
+    /// </summary>
+    private void CloseLargeImageButton_Click(object sender, RoutedEventArgs e)
+    {
+        LargeImageViewer.Visibility = Visibility.Collapsed;
+        LargeImageControl.Source = null;
+    }
+
+    /// <summary>
+    /// 点击背景遮罩关闭大图
+    /// </summary>
+    private void LargeImageViewer_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        LargeImageViewer.Visibility = Visibility.Collapsed;
+        LargeImageControl.Source = null;
+    }
 }

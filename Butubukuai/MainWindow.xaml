@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Butubukuai"
         mc:Ignorable="d"
         Title="不吐不快 (Butubukuai) - 核心控制台" SizeToContent="Height" MinHeight="750" Width="1050"
-        WindowStartupLocation="CenterScreen" Background="#F4F6F9">
+        WindowStartupLocation="CenterScreen" Background="#F4F6F9"
+        Icon="pack://application:,,,/logo.ico">
 
     <!-- 全局容器 -->
     <Grid>
@@ -25,7 +26,7 @@
                 </Border.Effect>
                 <StackPanel>
                     <!-- 第一部分：系统麦克风 -->
-                    <StackPanel Margin="0,0,0,15">
+                    <StackPanel Margin="0,0,0,30">
                         <TextBlock Text="1. 系统麦克风采集" FontWeight="Bold" Foreground="#333" Margin="0,0,0,10" FontSize="16"/>
                         
                         <StackPanel Margin="0,0,0,10">
@@ -45,8 +46,8 @@
                     </StackPanel>
 
                     <!-- 第二部分：OBS 控制配置 -->
-                    <StackPanel Margin="0,0,0,15">
-                        <Grid Margin="0,0,0,10">
+                    <StackPanel Margin="0,0,0,30">
+                        <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -55,58 +56,66 @@
                             <TextBlock x:Name="ObsStatusTextBlock" Grid.Column="1" Text="未连接" Foreground="#F44336" FontWeight="Bold" VerticalAlignment="Center"/>
                         </Grid>
 
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="2*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="IP 地址：" Margin="0,0,0,5" Foreground="#666"/>
-                                <TextBox x:Name="ObsIpTextBox" Text="127.0.0.1" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="端口：" Margin="0,0,0,5" Foreground="#666"/>
-                                <TextBox x:Name="ObsPortTextBox" Text="4455" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
-                            </StackPanel>
-                        </Grid>
+                        <Border Background="#F9F9F9" BorderBrush="#EAEAEA" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="💡 此区域参数无特殊要求，无需修改" Foreground="#AAA" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="IP 地址：" Margin="0,0,0,5" Foreground="#888" FontSize="12"/>
+                                        <TextBox x:Name="ObsIpTextBox" Text="127.0.0.1" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="端口：" Margin="0,0,0,5" Foreground="#888" FontSize="12"/>
+                                        <TextBox x:Name="ObsPortTextBox" Text="4455" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                                    </StackPanel>
+                                </Grid>
 
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="连接密码：" Margin="0,0,0,5" Foreground="#666"/>
-                                <PasswordBox x:Name="ObsPasswordBox" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="连接密码：" Margin="0,0,0,5" Foreground="#888" FontSize="12"/>
+                                        <PasswordBox x:Name="ObsPasswordBox" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="美化音轨道名称：" Margin="0,0,0,5" Foreground="#888" FontSize="12"/>
+                                        <TextBox x:Name="ObsMediaSourceNameTextBox" Text="美化音轨道" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Margin="0,0,0,5">
+                                    <TextBlock Margin="0,0,0,5">
+                                        <Run Text="OBS 高级音频偏移 (毫秒):" Foreground="#888" FontSize="12"/>
+                                        <Run Text=" (💡 无特定需求，保持默认 2000 无需修改)" Foreground="#AAA" FontSize="11"/>
+                                    </TextBlock>
+                                    <TextBox x:Name="ObsSyncDelayTextBox" Text="2000" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                                </StackPanel>
                             </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="美化音轨道名称：" Margin="0,0,0,5" Foreground="#666"/>
-                                <TextBox x:Name="ObsMediaSourceNameTextBox" Text="美化音轨道" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
-                            </StackPanel>
-                        </Grid>
+                        </Border>
 
                         <Button x:Name="ConnectObsButton" Content="[第 2 步] 掌控 OBS 导播" Height="35" Click="ConnectObsButton_Click" 
-                                Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,15" FontWeight="Bold"/>
+                                Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,0,20" FontWeight="Bold"/>
 
-                        <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="目标闭麦通道 (连接后获取)：" Margin="0,0,0,5" Foreground="#666"/>
-                            <ComboBox x:Name="ObsSourceComboBox" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                        <StackPanel Margin="0,0,0,15">
+                            <TextBlock Text="目标闭麦通道 (连接后获取)：" Margin="0,0,0,5" Foreground="#333" FontWeight="Bold"/>
+                            <ComboBox x:Name="ObsSourceComboBox" Height="32" VerticalContentAlignment="Center" Padding="5,0"/>
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="OBS 高级音频偏移 (毫秒):" Margin="0,0,0,5" Foreground="#666"/>
-                            <TextBox x:Name="ObsSyncDelayTextBox" Text="2000" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="0,0,0,10">
+                        <StackPanel Margin="0,0,0,15">
                             <TextBlock Margin="0,0,0,5">
-                                <Run Text="开火时机微调 (-500 到 +500): [ " Foreground="#666"/>
-                                <Run Text="{Binding Value, ElementName=FineTuneOffsetSlider}" Foreground="#666" FontWeight="Bold"/>
-                                <Run Text=" ]" Foreground="#666"/>
+                                <Run Text="美化音介入时机微调 (-1000 到 +1000): [ " Foreground="#333" FontWeight="Bold"/>
+                                <Run Text="{Binding Value, ElementName=FineTuneOffsetSlider}" Foreground="#1976D2" FontWeight="Bold"/>
+                                <Run Text=" ]" Foreground="#333" FontWeight="Bold"/>
                             </TextBlock>
-                            <Slider x:Name="FineTuneOffsetSlider" Minimum="-500" Maximum="500" Value="0" AutoToolTipPlacement="TopLeft" TickFrequency="10" IsSnapToTickEnabled="True"/>
+                            <Slider x:Name="FineTuneOffsetSlider" Minimum="-1000" Maximum="1000" Value="0" AutoToolTipPlacement="TopLeft" TickFrequency="10" SmallChange="10" LargeChange="10" IsSnapToTickEnabled="True"/>
                         </StackPanel>
 
                         <Border Background="#E8F5E9" BorderBrush="#C8E6C9" BorderThickness="1" CornerRadius="5" Padding="10">
@@ -271,50 +280,83 @@
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
                         <StackPanel>
                             <!-- Step 1 -->
-                            <Border Background="#E3F2FD" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-                                <StackPanel>
-                                    <TextBlock Text="第一步：拿“钥匙”" FontWeight="Bold" FontSize="16" Foreground="#1565C0" Margin="0,0,0,8"/>
-                                    <TextBlock TextWrapping="Wrap" LineHeight="22" Foreground="#444" FontSize="14">
-                                        点击 <Hyperlink NavigateUri="https://dashscope.console.aliyun.com/apiKey" RequestNavigate="Hyperlink_RequestNavigate" Foreground="#1E88E5" FontWeight="Bold" TextDecorations="Underline">获取 API Key</Hyperlink>，注册并创建一个钥匙，把它复制到软件的“AI 钥匙”框里。
-                                    </TextBlock>
-                                </StackPanel>
+                            <Border Margin="0,0,0,10" Background="#E3F2FD" BorderBrush="#BBDEFB" BorderThickness="1" CornerRadius="5" Padding="12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="[第 1 步] 找耳朵：在左侧选好你的麦克风。对着它说话，看到绿条在跳，说明它听见了。" TextWrapping="Wrap" FontWeight="Bold" FontSize="14" Foreground="#1565C0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1" Content="查看大图" Tag="pack://siteoforigin:,,,/HelpImages/step1.png" Click="ShowLargeImage_Click" Cursor="Hand" Padding="10,5" Background="White" BorderBrush="#2196F3" Foreground="#2196F3" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </Grid>
                             </Border>
 
                             <!-- Step 2 -->
-                            <Border Background="#F3E5F5" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-                                <StackPanel>
-                                    <TextBlock Text="第二步：找“耳朵”" FontWeight="Bold" FontSize="16" Foreground="#6A1B9A" Margin="0,0,0,8"/>
-                                    <TextBlock TextWrapping="Wrap" LineHeight="22" Foreground="#444" FontSize="14" Text="在左边选好你的麦克风。对着它说话，看到绿条在跳，说明它听见了。"/>
-                                </StackPanel>
+                            <Border Margin="0,0,0,10" Background="#F3E5F5" BorderBrush="#E1BEE7" BorderThickness="1" CornerRadius="5" Padding="12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="[第 2 步] 设外挂 (最重要!)：在 OBS 来源里添加【媒体源】命名为美化音轨道。接着在音频混合器点高级属性，把麦克风的“同步偏移”改为 2000ms。" TextWrapping="Wrap" FontWeight="Bold" FontSize="14" Foreground="#6A1B9A" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1" Content="查看大图" Tag="pack://siteoforigin:,,,/HelpImages/step2.png" Click="ShowLargeImage_Click" Cursor="Hand" Padding="10,5" Background="White" BorderBrush="#9C27B0" Foreground="#9C27B0" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </Grid>
                             </Border>
 
                             <!-- Step 3 -->
-                            <Border Background="#E8F5E9" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-                                <StackPanel>
-                                    <TextBlock Text="第三步：连 OBS" FontWeight="Bold" FontSize="16" Foreground="#2E7D32" Margin="0,0,0,8"/>
-                                    <TextBlock TextWrapping="Wrap" LineHeight="22" Foreground="#444" FontSize="14" Text="打开你的 OBS。回到软件点“一键连接 OBS”。看到绿灯亮起，说明它们“接头”成功了。"/>
-                                </StackPanel>
+                            <Border Margin="0,0,0,10" Background="#E8F5E9" BorderBrush="#C8E6C9" BorderThickness="1" CornerRadius="5" Padding="12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="[第 3 步] 连导播台：回到软件点击“一键连接”。看到右侧绿字亮起，说明“接头”成功。" TextWrapping="Wrap" FontWeight="Bold" FontSize="14" Foreground="#2E7D32" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1" Content="查看大图" Tag="pack://siteoforigin:,,,/HelpImages/step3.png" Click="ShowLargeImage_Click" Cursor="Hand" Padding="10,5" Background="White" BorderBrush="#4CAF50" Foreground="#4CAF50" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </Grid>
                             </Border>
 
                             <!-- Step 4 -->
-                            <Border Background="#FFF3E0" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-                                <StackPanel>
-                                    <TextBlock Text="第四步：物理外挂（最重要！）" FontWeight="Bold" FontSize="16" Foreground="#E65100" Margin="0,0,0,8"/>
-                                    <TextBlock TextWrapping="Wrap" LineHeight="22" Foreground="#444" FontSize="14" Text="在 OBS 的“音频混合器”里，点麦克风旁边的“三个点” -> [高级音频属性]。把“同步偏移”改成 2000ms。（这样你骂人的声音还没传到直播间，我就已经把它掐断了！）"/>
-                                </StackPanel>
+                            <Border Margin="0,0,0,10" Background="#FFF3E0" BorderBrush="#FFE0B2" BorderThickness="1" CornerRadius="5" Padding="12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Bold" FontSize="14" Foreground="#E65100" VerticalAlignment="Center" Margin="0,0,10,0">
+                                        [第 4 步] 通大脑：点击 <Hyperlink NavigateUri="https://dashscope.console.aliyun.com/apiKey" RequestNavigate="Hyperlink_RequestNavigate" Foreground="#1E88E5" TextDecorations="Underline">获取 API Key</Hyperlink> 注册，把钥匙复制到软件框内并点击连通。
+                                    </TextBlock>
+                                    <Button Grid.Column="1" Content="查看大图" Tag="pack://siteoforigin:,,,/HelpImages/step4.png" Click="ShowLargeImage_Click" Cursor="Hand" Padding="10,5" Background="White" BorderBrush="#FF9800" Foreground="#FF9800" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </Grid>
                             </Border>
 
                             <!-- Step 5 -->
-                            <Border Background="#FFEBEE" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-                                <StackPanel>
-                                    <TextBlock Text="第五步：收工！" FontWeight="Bold" FontSize="16" Foreground="#C62828" Margin="0,0,0,8"/>
-                                    <TextBlock TextWrapping="Wrap" LineHeight="22" Foreground="#444" FontSize="14" Text="对着麦克风试着说个违禁词，听到“哔”的一声，OBS 麦克风变红，你就成功了！"/>
-                                </StackPanel>
+                            <Border Margin="0,0,0,10" Background="#FFEBEE" BorderBrush="#FFCDD2" BorderThickness="1" CornerRadius="5" Padding="12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="[第 5 步] 靶场试音：在左下角[精准校准舱]录音5秒。听回放调滑块，直到哔声盖住脏话 (参考值: -500左右)，点击保存！" TextWrapping="Wrap" FontWeight="Bold" FontSize="14" Foreground="#C62828" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1" Content="查看大图" Tag="pack://siteoforigin:,,,/HelpImages/step5.png" Click="ShowLargeImage_Click" Cursor="Hand" Padding="10,5" Background="White" BorderBrush="#F44336" Foreground="#F44336" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </Grid>
                             </Border>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
             </Border>
+        </Grid>
+
+        <!-- 大图查看遮罩层 -->
+        <Grid x:Name="LargeImageViewer" Visibility="Collapsed" Panel.ZIndex="30" Background="#EE000000" MouseLeftButtonDown="LargeImageViewer_MouseLeftButtonDown" Cursor="Hand">
+            <!-- 图片容器 -->
+            <Image x:Name="LargeImageControl" Margin="50" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            
+            <!-- 提示文本 -->
+            <TextBlock Text="点击任意处关闭大图" Foreground="White" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,30" IsHitTestVisible="False" Opacity="0.8"/>
+            
+            <!-- 显式的关闭按钮 -->
+            <Button Content="✕" Width="40" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,20,0"
+                    Background="Transparent" BorderThickness="0" FontSize="28" Foreground="White" Cursor="Hand" Click="CloseLargeImageButton_Click"/>
         </Grid>
     </Grid>
 </Window>
